@@ -48,7 +48,7 @@ class BasePlugin:
         self.rs485.mode = minimalmodbus.MODE_RTU
         devicecreated = []
         Domoticz.Log("Chint DTSU666 Modbus plugin start")
-        self.runInterval = int(Parameters["Mode3"]) * 1 
+        self.runInterval = int(Parameters["Mode3"]) * 1
         if 1 not in Devices:
             Domoticz.Device(Name="Voltage L1-L2", Unit=1,TypeName="Voltage",Used=0).Create()
         if 2 not in Devices:
@@ -122,8 +122,11 @@ class BasePlugin:
         Domoticz.Log("Chint DTSU666 Modbus plugin stop")
 
     def onHeartbeat(self):
-        self.runInterval -=1;
+        self.runInterval -=1
         if self.runInterval <= 0:
+            Total_import_Power = 0
+            Total_export_Power = 0
+
             # Get data from DTSU666
             try:
                 Volts_AB = self.rs485.read_float(0x2000, functioncode=3, numberOfRegisters=2)/10
@@ -138,6 +141,7 @@ class BasePlugin:
                 Active_Power_L1 = self.rs485.read_float(0x2014, functioncode=3, numberOfRegisters=2)/10
                 Active_Power_L2 = self.rs485.read_float(0x2016, functioncode=3, numberOfRegisters=2)/10
                 Active_Power_L3 = self.rs485.read_float(0x2018, functioncode=3, numberOfRegisters=2)/10
+
                 Reactive_Power_L1 = self.rs485.read_float(0x201C, functioncode=3, numberOfRegisters=2)/10
                 Reactive_Power_L2 = self.rs485.read_float(0x201E, functioncode=3, numberOfRegisters=2)/10
                 Reactive_Power_L3 = self.rs485.read_float(0x2020, functioncode=3, numberOfRegisters=2)/10
@@ -148,22 +152,23 @@ class BasePlugin:
                 Total_System_Reactive_Power = self.rs485.read_float(0x201A, functioncode=3,numberOfRegisters=2)/10
                 Total_System_Power_Factor = self.rs485.read_float(0x202A, functioncode=3,numberOfRegisters=2)/1000
                 Frequency_Of_Supply_Voltages = self.rs485.read_float(0x2044, functioncode=3, numberOfRegisters=2)/100
-                Total_import_kwh = self.rs485.read_float(0x401E, functioncode=3, numberOfRegisters=2)*1000
-                Total_export_kwh = self.rs485.read_float(0x4028, functioncode=3, numberOfRegisters=2)*1000
-                Total_Q1_kvarh = self.rs485.read_float(0x4032, functioncode=3, numberOfRegisters=2)*1000
-                Total_Q2_kvarh = self.rs485.read_float(0x403C, functioncode=3, numberOfRegisters=2)*1000
-                Total_Q3_kvarh = self.rs485.read_float(0x4046, functioncode=3, numberOfRegisters=2)*1000
-                Total_Q4_kvarh = self.rs485.read_float(0x4050, functioncode=3, numberOfRegisters=2)*1000
-                Total_import_Power = 0
+
+                Total_import_kwh = self.rs485.read_float(0x101E, functioncode=3, numberOfRegisters=2)*1000
+                Total_export_kwh = self.rs485.read_float(0x1028, functioncode=3, numberOfRegisters=2)*1000
+                Total_Q1_kvarh = self.rs485.read_float(0x1032, functioncode=3, numberOfRegisters=2)*1000
+                Total_Q2_kvarh = self.rs485.read_float(0x103C, functioncode=3, numberOfRegisters=2)*1000
+                Total_Q3_kvarh = self.rs485.read_float(0x1046, functioncode=3, numberOfRegisters=2)*1000
+                Total_Q4_kvarh = self.rs485.read_float(0x1050, functioncode=3, numberOfRegisters=2)*1000
+
                 if Active_Power_L1>0: Total_import_Power += Active_Power_L1
                 if Active_Power_L2>0: Total_import_Power += Active_Power_L2
                 if Active_Power_L3>0: Total_import_Power += Active_Power_L3
-                Total_export_Power = 0
+                
                 if Active_Power_L1<0: Total_export_Power -= Active_Power_L1
                 if Active_Power_L2<0: Total_export_Power -= Active_Power_L2
                 if Active_Power_L3<0: Total_export_Power -= Active_Power_L3
             except:
-                Domoticz.Log("Connection problem");
+                Domoticz.Log("Connection problem")
             else:
                 #Update devices
                 Devices[1].Update(0,str(Volts_AB))
@@ -188,7 +193,7 @@ class BasePlugin:
                 Devices[20].Update(0,str(Total_System_Power_Factor))
                 Devices[21].Update(0,str(Frequency_Of_Supply_Voltages))
                 Devices[22].Update(0,str(Total_import_Power)+";"+str(Total_import_kwh))
-                Devices[23].Update(0,str(Total_export_Power)+";"+str(Total_export_kwh))				
+                Devices[23].Update(0,str(Total_export_Power)+";"+str(Total_export_kwh))
                 Devices[24].Update(0,str(Total_import_kwh))
                 Devices[25].Update(0,str(Total_export_kwh))
                 Devices[26].Update(0,str((Total_Q1_kvarh+Total_Q2_kvarh)))
@@ -232,7 +237,6 @@ class BasePlugin:
                 Domoticz.Log('Q1 kVArh: {0:.3f} kVArh'.format(Total_Q4_kvarh/1000))
 
             self.runInterval = int(Parameters["Mode3"]) * 6
-
 
 global _plugin
 _plugin = BasePlugin()
