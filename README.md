@@ -17,7 +17,7 @@ Since I have a DTSU666 manufactured in 2020, some values wer not working. I foun
 
 # Dependencies
 
-You don't need to install these modules unless you're contributing to this project or troubleshooting some steps
+You don't need to install these modules unless you're doing some troubleshooting
 
 Used python modules:
 - [pyserial](https://pythonhosted.org/pyserial/)
