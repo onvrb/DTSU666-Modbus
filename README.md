@@ -6,6 +6,7 @@ This is a fork from https://github.com/elfabriceu/DTSU666-Modbus
 I assume that the original project was made for older DTSU666 models due to the original `pdf` publication in **2016**.
 Since I have a DTSU666 manufactured in 2020, some values wer not working. I found this earlier **2019** `pdf` document which worked for my model. I suggest you try both projects and see which one works for you.
 
+A standalone python script to send the data directly to InfluxDB can be found here: https://github.com/onvrb/Rail-Meter-TX
 
 # Usage
 
